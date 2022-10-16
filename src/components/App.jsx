@@ -1,46 +1,43 @@
 import { Component } from 'react';
 import { nanoid } from 'nanoid';
+import { ContactForm } from './ContactForm/ContactForm';
 
 export class App extends Component {
   state = {
     contacts: [],
-    name: '',
+    filter: '',
   };
-  onSubmitForm = event => {
-    event.preventDefault();
-    const nameUser = event.target.elements.name.value;
-
+  onSubmitForm = (nameUser, phoneUser) => {
+    const user = { id: nanoid(), name: nameUser, number: phoneUser };
     this.setState(prevState => ({
-      contacts: [
-        {
-          id: nanoid(),
-          name: nameUser,
-        },
-      ],
+      contacts: [...prevState.contacts, user],
     }));
-    console.log(this.state);
-    event.target.reset();
   };
+  filterInputText = event => {
+    const filterText = event.target.value.toLowerCase();
+    this.setState(() => ({ filter: filterText }));
+  };
+
+  onFilter() {
+    const { contacts, filter } = this.state;
+    return contacts.filter(({ name }) => name.toLowerCase().includes(filter));
+  }
   render() {
-    const { contacts } = this.state;
+    const visbleContacts = this.onFilter();
+
     return (
       <section>
         <h2>Phonebook</h2>
-        <form onSubmit={this.onSubmitForm} action="">
-          <label for="name">Name</label>
-          <input
-            type="text"
-            name="name"
-            pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-            title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-            required
-          />
-          <button type="submit">Add contact</button>
-        </form>
+        <ContactForm onSubmit={this.onSubmitForm} />
         <h2>Contacts</h2>
+        <input type="text" name="filter" onChange={this.filterInputText} />
         <ul>
-          {contacts.map(el => {
-            return <li key={el.id}>{el.name}</li>;
+          {visbleContacts.map(({ id, name, number }) => {
+            return (
+              <li key={id}>
+                {name}: {number}
+              </li>
+            );
           })}
         </ul>
       </section>
