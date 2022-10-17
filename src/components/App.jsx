@@ -1,20 +1,22 @@
 import { Component } from 'react';
 import { nanoid } from 'nanoid';
 import { ContactForm } from './ContactForm/ContactForm';
+import { ContactList } from './ContactList/ContactList';
+import { Filter } from './Filter/Filter';
 
 export class App extends Component {
   state = {
     contacts: [],
     filter: '',
   };
-  onSubmitForm = (nameUser, phoneUser) => {
-    const user = { id: nanoid(), name: nameUser, number: phoneUser };
+  onSubmitForm = data => {
+    const user = { id: nanoid(), name: data.name, number: data.number };
     this.setState(prevState => ({
       contacts: [...prevState.contacts, user],
     }));
   };
-  filterInputText = event => {
-    const filterText = event.target.value.toLowerCase();
+  filterInputText = text => {
+    const filterText = text.toLowerCase();
     this.setState(() => ({ filter: filterText }));
   };
 
@@ -24,22 +26,13 @@ export class App extends Component {
   }
   render() {
     const visbleContacts = this.onFilter();
-
     return (
       <section>
         <h2>Phonebook</h2>
         <ContactForm onSubmit={this.onSubmitForm} />
         <h2>Contacts</h2>
-        <input type="text" name="filter" onChange={this.filterInputText} />
-        <ul>
-          {visbleContacts.map(({ id, name, number }) => {
-            return (
-              <li key={id}>
-                {name}: {number}
-              </li>
-            );
-          })}
-        </ul>
+        <Filter filterInputText={this.filterInputText} />
+        <ContactList visbleContacts={visbleContacts} />
       </section>
     );
   }
